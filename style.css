@@ -43,3 +43,10 @@ body {
   padding: 15px;
   border-radius: 10px;
 }
+
+#question {
+  white-space: pre-wrap;
+  font-family: monospace;
+  margin-top: 20px;
+  text-align: left; /* ensures text starts from left */
+}
