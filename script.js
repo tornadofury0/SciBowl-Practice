@@ -1,147 +1,199 @@
+const QUESTION_URL =
+  "https://raw.githubusercontent.com/tornadofury0/National-Science-Bowl-Questions/refs/heads/main/all_questions.json";
+
 let questions = [];
 let currentQuestion = null;
+let typingInterval = null;
+let geminiApiKey = "";
+let timeLeft = 0;
+let timerId = null;
 let buzzed = false;
 let waitingForNext = false;
-let typingJob = null;
-let answerTimerJob = null;
-let fiveSecTimerJob = null;
 
-let scores = {}; // {category: {correct:0, wrong:0}}
+// Per-category score tracking
+let scores = {};
+
+async function initGemini() {
+  geminiApiKey = prompt("Enter your Gemini API key:");
+}
 
 async function loadQuestions() {
-  const res = await fetch("https://raw.githubusercontent.com/tornadofury0/National-Science-Bowl-Questions/refs/heads/main/all_questions.json");
+  const res = await fetch(QUESTION_URL);
   const data = await res.json();
-  // filter out bonus questions
-  questions = (data.questions || []).filter(q => q.bonus === false);
+  // only use non-bonus questions
+  questions = data.questions.filter((q) => q.bonus === false);
 }
 
-function updateScoreboard() {
-  const board = document.getElementById("scoreboard");
-  board.innerHTML = "";
-  for (const cat of Object.keys(scores)) {
-    const s = scores[cat];
-    const div = document.createElement("div");
-    div.textContent = `${cat} → ✅ ${s.correct} | ❌ ${s.wrong}`;
-    board.appendChild(div);
+function updateScores() {
+  const scoresDiv = document.getElementById("scores");
+  let html = "<h3>Scores by Category</h3>";
+  for (const [cat, s] of Object.entries(scores)) {
+    html += `<div>${cat}: ✅ ${s.correct} | ❌ ${s.wrong}</div>`;
   }
+  scoresDiv.innerHTML = html;
 }
 
-function startQuestion() {
-  waitingForNext = false;
-  buzzed = false;
-  document.getElementById("answerInput").disabled = true;
-  document.getElementById("answerInput").value = "";
-  document.getElementById("resultBox").innerText = "";
-  document.getElementById("timerBox").innerText = "";
-
-  if (answerTimerJob) clearInterval(answerTimerJob);
-  if (fiveSecTimerJob) clearInterval(fiveSecTimerJob);
-
-  currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-  if (!scores[currentQuestion.category]) {
-    scores[currentQuestion.category] = { correct: 0, wrong: 0 };
-  }
-
-  // slowly display question
-  const text = `CATEGORY: ${currentQuestion.category}\n\n${currentQuestion.parsed_question}`;
-  const box = document.getElementById("questionBox");
-  box.innerText = "";
+function showQuestion(q) {
+  const qDiv = document.getElementById("question");
+  qDiv.textContent = "";
+  const speed = parseInt(document.getElementById("speed").value) || 50;
   let i = 0;
-  const speed = parseInt(document.getElementById("speedInput").value, 10);
-
-  typingJob = setInterval(() => {
-    if (i < text.length) {
-      box.innerText += text[i];
+  typingInterval = setInterval(() => {
+    if (i < q.length) {
+      qDiv.textContent += q[i];
       i++;
     } else {
-      clearInterval(typingJob);
-      startFiveSecondTimer();
+      clearInterval(typingInterval);
+      startTimer(5, () => {
+        if (!buzzed) {
+          document.getElementById("results").textContent =
+            "Time up! You did not buzz.";
+          waitingForNext = true;
+        }
+      });
     }
   }, speed);
 }
 
-function startFiveSecondTimer() {
-  let timeLeft = 5;
-  const timerBox = document.getElementById("timerBox");
-  timerBox.innerText = `Buzz time: ${timeLeft}`;
-  fiveSecTimerJob = setInterval(() => {
+function startTimer(seconds, onEnd) {
+  timeLeft = seconds;
+  updateTimer();
+  timerId = setInterval(() => {
     timeLeft--;
-    if (timeLeft > 0) {
-      timerBox.innerText = `Buzz time: ${timeLeft}`;
-    } else {
-      clearInterval(fiveSecTimerJob);
-      timerBox.innerText = "Time’s up! No buzz.";
-      waitingForNext = true;
+    updateTimer();
+    if (timeLeft <= 0) {
+      clearInterval(timerId);
+      onEnd();
     }
   }, 1000);
+}
+
+function updateTimer() {
+  const tDiv = document.getElementById("timer");
+  tDiv.textContent = "⏱ " + timeLeft;
 }
 
 function buzz() {
-  if (waitingForNext || buzzed) return;
+  if (waitingForNext) {
+    nextQuestion();
+    return;
+  }
+  if (buzzed || !currentQuestion) return;
   buzzed = true;
-  clearInterval(fiveSecTimerJob);
-  document.getElementById("answerInput").disabled = false;
-  document.getElementById("answerInput").focus();
-  startAnswerTimer();
+  clearInterval(timerId);
+  document.getElementById("answer-section").style.display = "block";
+  document.getElementById("answer").disabled = false;
+  document.getElementById("answer").focus();
+  startTimer(8, () => {
+    submitAnswer();
+  });
 }
 
-function startAnswerTimer() {
-  let timeLeft = 8;
-  const timerBox = document.getElementById("timerBox");
-  timerBox.innerText = `Answer time: ${timeLeft}`;
-  answerTimerJob = setInterval(() => {
-    timeLeft--;
-    if (timeLeft > 0) {
-      timerBox.innerText = `Answer time: ${timeLeft}`;
-    } else {
-      clearInterval(answerTimerJob);
-      checkAnswer(); // auto-submit
-    }
-  }, 1000);
+async function checkWithGemini(userAns, correctAns) {
+  if (!geminiApiKey) return false;
+  const prompt = `
+  The user was asked a question.
+  The correct answer is: "${correctAns}"
+  The user answered: "${userAns}"
+  Is the user's answer correct? Respond only with "Yes" or "No".
+  `;
+  try {
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
+        geminiApiKey,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+        }),
+      }
+    );
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    return text && text.toLowerCase().startsWith("yes");
+  } catch (e) {
+    console.error("Gemini error", e);
+    return false;
+  }
 }
 
-function checkAnswer() {
-  if (!currentQuestion) return;
-  clearInterval(answerTimerJob);
+async function submitAnswer() {
+  clearInterval(timerId);
+  const userAns = document.getElementById("answer").value.trim();
+  const correctAns = currentQuestion.parsed_answer || "";
+  const category = currentQuestion.category || "Unknown";
+  if (!scores[category]) scores[category] = { correct: 0, wrong: 0 };
 
-  const userAns = document.getElementById("answerInput").value.trim();
-  const correctAns = currentQuestion.parsed_answer;
   let isCorrect = false;
-
   if (currentQuestion.type.toLowerCase().startsWith("multiple")) {
     const correctLetter = correctAns.trim().toUpperCase()[0];
-    const correctText = correctAns.slice(correctAns.indexOf(")") + 1).trim().toUpperCase();
-    isCorrect = userAns.toUpperCase().startsWith(correctLetter) || userAns.toUpperCase() === correctText;
+    const correctText = correctAns
+      .slice(correctAns.indexOf(")") + 1)
+      .trim()
+      .toUpperCase();
+    isCorrect =
+      userAns.toUpperCase().startsWith(correctLetter) ||
+      userAns.toUpperCase() === correctText;
   } else {
-    isCorrect = userAns.toLowerCase() === correctAns.toLowerCase();
+    isCorrect = await checkWithGemini(userAns, correctAns);
   }
 
-  const resBox = document.getElementById("resultBox");
   if (isCorrect) {
-    scores[currentQuestion.category].correct++;
-    resBox.innerText = `✅ Correct!\nYour Answer: ${userAns}\nCorrect Answer: ${correctAns}`;
+    scores[category].correct++;
   } else {
-    scores[currentQuestion.category].wrong++;
-    resBox.innerText = `❌ Wrong!\nYour Answer: ${userAns}\nCorrect Answer: ${correctAns}`;
+    scores[category].wrong++;
   }
+  updateScores();
 
-  updateScoreboard();
+  document.getElementById("results").textContent = `Q: ${
+    currentQuestion.parsed_question
+  }\nCorrect: ${correctAns}\nYour Answer: ${userAns || "(none)"}\n${
+    isCorrect ? "✅ Correct!" : "❌ Wrong!"
+  }`;
+
+  document.getElementById("answer").disabled = true;
   waitingForNext = true;
 }
 
-document.getElementById("submitBtn").addEventListener("click", checkAnswer);
+function nextQuestion() {
+  document.getElementById("results").textContent = "";
+  document.getElementById("answer").value = "";
+  document.getElementById("answer").disabled = true;
+  document.getElementById("answer-section").style.display = "none";
+  buzzed = false;
+  waitingForNext = false;
+  if (questions.length === 0) {
+    document.getElementById("question").textContent = "No more questions!";
+    return;
+  }
+  currentQuestion =
+    questions[Math.floor(Math.random() * questions.length)];
+  showQuestion(
+    "CATEGORY: " +
+      currentQuestion.category +
+      "\n\n" +
+      currentQuestion.parsed_question
+  );
+}
+
+document.getElementById("start").addEventListener("click", async () => {
+  await initGemini();
+  await loadQuestions();
+  updateScores();
+  nextQuestion();
+});
+
+document.getElementById("submit").addEventListener("click", submitAnswer);
+document
+  .getElementById("answer")
+  .addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitAnswer();
+  });
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
     e.preventDefault();
-    if (waitingForNext) {
-      startQuestion();
-    } else {
-      buzz();
-    }
+    buzz();
   }
-});
-
-loadQuestions().then(() => {
-  startQuestion();
 });
