@@ -8,25 +8,44 @@
 <body>
   <h1>NSB Practice App</h1>
 
+  <!-- Controls Section -->
   <div id="controls">
-    <label>Typing speed (ms per char): 
-      <input type="number" id="speed" value="50" min="10" />
-    </label>
+    <!-- Typing speed -->
+    <label for="speed">Typing speed (ms per character): </label>
+    <input type="number" id="speed" value="50" min="10" max="500" />
+
+    <br><br>
+
+    <!-- Gemini API key -->
+    <label for="gemini-key">Gemini API Key: </label>
+    <input type="text" id="gemini-key" placeholder="Enter your Gemini API key" style="width: 400px;" />
+
+    <br><br>
+
+    <!-- Start button -->
     <button id="start">Start</button>
   </div>
 
+  <!-- Category selection -->
   <div id="category-select"></div>
 
-  <div id="question"></div>
-  <div id="timer"></div>
+  <!-- Question display -->
+  <div id="question" style="white-space: pre-wrap; font-family: monospace; margin-top: 20px;"></div>
 
-  <div id="answer-section" style="display:none;">
-    <input type="text" id="answer" placeholder="Type your answer..." disabled />
+  <!-- Timer display -->
+  <div id="timer" style="font-weight: bold; margin-top: 10px;"></div>
+
+  <!-- Answer section -->
+  <div id="answer-section" style="display:none; margin-top: 20px;">
+    <input type="text" id="answer" placeholder="Type your answer..." disabled style="width: 400px;" />
     <button id="submit">Submit</button>
   </div>
 
-  <div id="results"></div>
-  <div id="scores"></div>
+  <!-- Results display -->
+  <div id="results" style="white-space: pre-wrap; margin-top: 20px;"></div>
+
+  <!-- Scores by category -->
+  <div id="scores" style="margin-top: 20px;"></div>
 
   <script src="script.js"></script>
 </body>
