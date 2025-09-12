@@ -2,36 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>NSB Practice App</title>
+  <title>Science Bowl Practice</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>NSB Practice App</h1>
+  <h1>Science Bowl Practice</h1>
 
-    <div class="settings">
-      <label>Gemini API Key:
-        <input type="password" id="apiKeyInput" placeholder="Paste your API key">
-      </label>
-      <button id="saveKeyBtn">Save Key</button>
-    </div>
+  <label>Typing Speed (ms per char): 
+    <input type="number" id="speedInput" value="30" min="5" max="200">
+  </label>
 
-    <div>
-      <label>Categories (Ctrl/Cmd+Click for multiple):</label><br>
-      <select id="categorySelect" multiple></select>
-    </div>
+  <div id="questionBox" class="box"></div>
+  <div id="timerBox"></div>
 
-    <button id="startBtn">▶ Start Question</button>
+  <input type="text" id="answerInput" placeholder="Press SPACE to buzz in..." disabled>
+  <button id="submitBtn">Submit</button>
 
-    <div id="questionBox" class="question"></div>
+  <div id="resultBox"></div>
 
-    <input type="text" id="answerInput" placeholder="Type your answer...">
-    <button id="submitBtn">Submit</button>
-
-    <div id="timer" class="timer"></div>
-    <p id="result"></p>
-    <p id="score">✅ Correct: 0 | ❌ Wrong: 0</p>
-  </div>
+  <h2>Category Scores</h2>
+  <div id="scoreboard"></div>
 
   <script src="script.js"></script>
 </body>
