@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Science Bowl Practice</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>NSB Practice App</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Science Bowl Practice</h1>
+  <h1>NSB Practice App</h1>
 
-  <label>Typing Speed (ms per char): 
-    <input type="number" id="speedInput" value="30" min="5" max="200">
-  </label>
+  <div id="controls">
+    <label>Typing speed (ms per char): 
+      <input type="number" id="speed" value="50" min="10" />
+    </label>
+    <button id="start">Start</button>
+  </div>
 
-  <div id="questionBox" class="box"></div>
-  <div id="timerBox"></div>
+  <div id="question"></div>
+  <div id="timer"></div>
 
-  <input type="text" id="answerInput" placeholder="Press SPACE to buzz in..." disabled>
-  <button id="submitBtn">Submit</button>
+  <div id="answer-section" style="display:none;">
+    <input type="text" id="answer" placeholder="Type your answer..." disabled />
+    <button id="submit">Submit</button>
+  </div>
 
-  <div id="resultBox"></div>
-
-  <h2>Category Scores</h2>
-  <div id="scoreboard"></div>
+  <div id="results"></div>
+  <div id="scores"></div>
 
   <script src="script.js"></script>
 </body>
