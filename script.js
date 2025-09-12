@@ -211,9 +211,14 @@ document.getElementById("answer").addEventListener("keydown", (e) => {
   if (e.key === "Enter") submitAnswer();
 });
 
+// Fix: only buzz with Space if not typing in the answer box
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
+    if (document.activeElement.id === "answer") {
+      return; // allow spaces in input
+    }
     e.preventDefault();
     buzz();
   }
 });
+
