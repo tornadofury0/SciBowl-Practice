@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NSB Practice App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>NSB Practice App</h1>
+
+    <div class="settings">
+      <label>Gemini API Key:
+        <input type="password" id="apiKeyInput" placeholder="Paste your API key">
+      </label>
+      <button id="saveKeyBtn">Save Key</button>
+    </div>
+
+    <div>
+      <label>Categories (Ctrl/Cmd+Click for multiple):</label><br>
+      <select id="categorySelect" multiple></select>
+    </div>
+
+    <button id="startBtn">▶ Start Question</button>
+
+    <div id="questionBox" class="question"></div>
+
+    <input type="text" id="answerInput" placeholder="Type your answer...">
+    <button id="submitBtn">Submit</button>
+
+    <div id="timer" class="timer"></div>
+    <p id="result"></p>
+    <p id="score">✅ Correct: 0 | ❌ Wrong: 0</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
