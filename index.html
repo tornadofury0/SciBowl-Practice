@@ -15,6 +15,17 @@
     <button id="start">Start</button>
   </div>
 
+  <div id="controls">
+    <label for="speed">Typing speed (ms per character): </label>
+    <input type="number" id="speed" value="50" min="10" max="500" />
+  
+    <br><br>
+  
+    <label for="gemini-key">Gemini API Key: </label>
+    <input type="text" id="gemini-key" placeholder="Enter your Gemini API key" style="width:400px" />
+  </div>
+
+
   <div id="category-select"></div>
 
   <div id="question"></div>
@@ -31,3 +42,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
