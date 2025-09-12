@@ -17,8 +17,15 @@ let waitingForNext = false;
 let scores = {};
 
 async function initGemini() {
-  geminiApiKey = prompt("Enter your Gemini API key:");
+  const keyInput = document.getElementById("gemini-key");
+  geminiApiKey = keyInput.value.trim();
+  if (!geminiApiKey) {
+    alert("Please enter your Gemini API key!");
+    return false;
+  }
+  return true;
 }
+
 
 async function loadQuestions() {
   const res = await fetch(QUESTION_URL);
@@ -218,11 +225,13 @@ function nextQuestion() {
 }
 
 document.getElementById("start").addEventListener("click", async () => {
-  await initGemini();
+  const ok = await initGemini();
+  if (!ok) return; // stop if no API key
   await loadQuestions();
   updateScores();
   nextQuestion();
 });
+
 
 document.getElementById("submit").addEventListener("click", submitAnswer);
 document.getElementById("answer").addEventListener("keydown", (e) => {
@@ -243,5 +252,6 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
 
