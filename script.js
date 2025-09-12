@@ -1,6 +1,8 @@
 const QUESTION_URL =
   "https://raw.githubusercontent.com/tornadofury0/National-Science-Bowl-Questions/refs/heads/main/all_questions.json";
 
+
+let typingJob = null;
 let allQuestions = [];
 let questions = [];
 let currentQuestion = null;
@@ -100,14 +102,28 @@ function buzz() {
   }
   if (buzzed || !currentQuestion) return;
   buzzed = true;
-  clearInterval(timerId);
+
+  // Stop typing immediately
+  if (typingInterval) {
+    clearInterval(typingInterval);
+    typingInterval = null;
+  }
+
+  // Stop any active answer timer
+  if (timerId) {
+    clearInterval(timerId);
+    timerId = null;
+  }
+
+  // Show answer input
   document.getElementById("answer-section").style.display = "block";
   document.getElementById("answer").disabled = false;
   document.getElementById("answer").focus();
-  startTimer(8, () => {
-    submitAnswer();
-  });
+
+  // Start the 8-second timer for typing the answer
+  startTimer(8, submitAnswer);
 }
+
 
 async function checkWithGemini(userAns, correctAns) {
   if (!geminiApiKey) return false;
@@ -221,4 +237,5 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
