@@ -1,6 +1,7 @@
 const QUESTION_URL =
   "https://raw.githubusercontent.com/tornadofury0/National-Science-Bowl-Questions/refs/heads/main/all_questions.json";
 
+let allQuestions = [];
 let questions = [];
 let currentQuestion = null;
 let typingInterval = null;
@@ -20,8 +21,27 @@ async function initGemini() {
 async function loadQuestions() {
   const res = await fetch(QUESTION_URL);
   const data = await res.json();
-  // only use non-bonus questions
-  questions = data.questions.filter((q) => q.bonus === false);
+  allQuestions = data.questions.filter((q) => q.bonus === false);
+  showCategorySelection();
+}
+
+function showCategorySelection() {
+  const categories = [...new Set(allQuestions.map((q) => q.category))].sort();
+  const container = document.getElementById("category-select");
+  container.innerHTML = "<h3>Choose categories:</h3>";
+  categories.forEach((cat) => {
+    const id = "cat_" + cat.replace(/\s+/g, "_");
+    container.innerHTML += `
+      <label>
+        <input type="checkbox" id="${id}" value="${cat}" checked /> ${cat}
+      </label><br>
+    `;
+  });
+}
+
+function getSelectedCategories() {
+  const checkboxes = document.querySelectorAll("#category-select input[type=checkbox]");
+  return [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
 }
 
 function updateScores() {
@@ -92,10 +112,10 @@ function buzz() {
 async function checkWithGemini(userAns, correctAns) {
   if (!geminiApiKey) return false;
   const prompt = `
-  The user was asked a question.
-  The correct answer is: "${correctAns}"
-  The user answered: "${userAns}"
-  Is the user's answer correct? Respond only with "Yes" or "No".
+The user was asked a question.
+Correct answer: "${correctAns}"
+User answer: "${userAns}"
+Is the user's answer correct? Only reply "Yes" or "No".
   `;
   try {
     const response = await fetch(
@@ -126,15 +146,14 @@ async function submitAnswer() {
   if (!scores[category]) scores[category] = { correct: 0, wrong: 0 };
 
   let isCorrect = false;
-  if (currentQuestion.type.toLowerCase().startsWith("multiple")) {
-    const correctLetter = correctAns.trim().toUpperCase()[0];
-    const correctText = correctAns
-      .slice(correctAns.indexOf(")") + 1)
-      .trim()
-      .toUpperCase();
-    isCorrect =
-      userAns.toUpperCase().startsWith(correctLetter) ||
-      userAns.toUpperCase() === correctText;
+  if (currentQuestion.type.toLowerCase().includes("multiple")) {
+    // Multiple choice: accept letter OR answer text (case-insensitive, ignore leading spaces)
+    const match = correctAns.match(/^[A-Z]\)/);
+    const correctLetter = match ? match[0][0].toUpperCase() : "";
+    const correctText = correctAns.replace(/^[A-Z]\)/, "").trim().toUpperCase();
+
+    const userUp = userAns.toUpperCase();
+    isCorrect = userUp.startsWith(correctLetter) || userUp === correctText;
   } else {
     isCorrect = await checkWithGemini(userAns, correctAns);
   }
@@ -163,12 +182,15 @@ function nextQuestion() {
   document.getElementById("answer-section").style.display = "none";
   buzzed = false;
   waitingForNext = false;
-  if (questions.length === 0) {
-    document.getElementById("question").textContent = "No more questions!";
+
+  const selectedCats = getSelectedCategories();
+  const pool = allQuestions.filter(q => selectedCats.includes(q.category));
+  if (pool.length === 0) {
+    document.getElementById("question").textContent = "No questions in selected categories!";
     return;
   }
-  currentQuestion =
-    questions[Math.floor(Math.random() * questions.length)];
+
+  currentQuestion = pool[Math.floor(Math.random() * pool.length)];
   showQuestion(
     "CATEGORY: " +
       currentQuestion.category +
@@ -185,11 +207,9 @@ document.getElementById("start").addEventListener("click", async () => {
 });
 
 document.getElementById("submit").addEventListener("click", submitAnswer);
-document
-  .getElementById("answer")
-  .addEventListener("keydown", (e) => {
-    if (e.key === "Enter") submitAnswer();
-  });
+document.getElementById("answer").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") submitAnswer();
+});
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
