@@ -116,13 +116,15 @@ function buzz() {
   }
 
   // Show answer input
+  const answerInput = document.getElementById("answer");
   document.getElementById("answer-section").style.display = "block";
-  document.getElementById("answer").disabled = false;
-  document.getElementById("answer").focus();
+  answerInput.disabled = false;
+  answerInput.focus();
 
-  // Start the 8-second timer for typing the answer
+  // Start 8-second timer for typing the answer
   startTimer(8, submitAnswer);
 }
+
 
 
 async function checkWithGemini(userAns, correctAns) {
@@ -224,8 +226,12 @@ document.getElementById("start").addEventListener("click", async () => {
 
 document.getElementById("submit").addEventListener("click", submitAnswer);
 document.getElementById("answer").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") submitAnswer();
+  if (e.key === "Enter") {
+    e.preventDefault(); // prevent default form submission
+    submitAnswer();
+  }
 });
+
 
 // Fix: only buzz with Space if not typing in the answer box
 document.addEventListener("keydown", (e) => {
@@ -237,5 +243,6 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
 
