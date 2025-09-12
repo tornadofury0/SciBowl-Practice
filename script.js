@@ -201,6 +201,7 @@ async function submitAnswer() {
 }
 
 function nextQuestion() {
+  // Reset UI and state
   document.getElementById("results").textContent = "";
   document.getElementById("answer").value = "";
   document.getElementById("answer").disabled = true;
@@ -208,6 +209,7 @@ function nextQuestion() {
   buzzed = false;
   waitingForNext = false;
 
+  // Get selected categories and filter questions
   const selectedCats = getSelectedCategories();
   const pool = allQuestions.filter(q => selectedCats.includes(q.category));
   if (pool.length === 0) {
@@ -215,14 +217,17 @@ function nextQuestion() {
     return;
   }
 
+  // Pick a random question
   currentQuestion = pool[Math.floor(Math.random() * pool.length)];
-  showQuestion(
-    "CATEGORY: " +
-      currentQuestion.category +
-      "\n\n" +
-      currentQuestion.parsed_question
-  );
+
+  // Prepare full text with type, category, and question
+  const questionType = currentQuestion.type || "Unknown";
+  const fullText = `TYPE: ${questionType}\nCATEGORY: ${currentQuestion.category}\n\n${currentQuestion.parsed_question}`;
+
+  // Slowly display the question
+  showQuestion(fullText);
 }
+
 
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
@@ -252,6 +257,7 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
 
 
