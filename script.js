@@ -231,9 +231,7 @@ function nextQuestion() {
 
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
-  if (!ok) return; // stop if no API key
-  await loadQuestions();
-  updateScores();
+  if (!ok) return;
   nextQuestion();
 });
 
@@ -256,6 +254,12 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     buzz();
   }
+});
+
+// Load questions and show categories as soon as the page loads
+window.addEventListener("DOMContentLoaded", async () => {
+  await loadQuestions();
+  updateScores();
 });
 
 
