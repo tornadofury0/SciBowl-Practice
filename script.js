@@ -1,7 +1,6 @@
 const QUESTION_URL =
   "https://raw.githubusercontent.com/tornadofury0/National-Science-Bowl-Questions/refs/heads/main/all_questions.json";
 
-
 let typingJob = null;
 let allQuestions = [];
 let questions = [];
@@ -26,7 +25,6 @@ async function initGemini() {
   return true;
 }
 
-
 async function loadQuestions() {
   const res = await fetch(QUESTION_URL);
   const data = await res.json();
@@ -49,8 +47,10 @@ function showCategorySelection() {
 }
 
 function getSelectedCategories() {
-  const checkboxes = document.querySelectorAll("#category-select input[type=checkbox]");
-  return [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
+  const checkboxes = document.querySelectorAll(
+    "#category-select input[type=checkbox]"
+  );
+  return [...checkboxes].filter((cb) => cb.checked).map((cb) => cb.value);
 }
 
 function updateScores() {
@@ -132,16 +132,9 @@ function buzz() {
   startTimer(8, submitAnswer);
 }
 
-
-
 async function checkWithGemini(userAns, correctAns) {
   if (!geminiApiKey) return false;
-  const prompt = `
-The user was asked a question.
-Correct answer: "${correctAns}"
-User answer: "${userAns}"
-Is the user's answer correct? Only reply "Yes" or "No".
-  `;
+  const prompt = `The user was asked a question. Correct answer: "${correctAns}" User answer: "${userAns}" Is the user's answer correct? Only reply "Yes" or "No".`;
   try {
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
@@ -172,7 +165,7 @@ async function submitAnswer() {
 
   let isCorrect = false;
   if (currentQuestion.type.toLowerCase().includes("multiple")) {
-    // Multiple choice: accept letter OR answer text (case-insensitive, ignore leading spaces)
+    // Multiple choice: accept letter OR answer text
     const match = correctAns.match(/^[A-Z]\)/);
     const correctLetter = match ? match[0][0].toUpperCase() : "";
     const correctText = correctAns.replace(/^[A-Z]\)/, "").trim().toUpperCase();
@@ -211,9 +204,10 @@ function nextQuestion() {
 
   // Get selected categories and filter questions
   const selectedCats = getSelectedCategories();
-  const pool = allQuestions.filter(q => selectedCats.includes(q.category));
+  const pool = allQuestions.filter((q) => selectedCats.includes(q.category));
   if (pool.length === 0) {
-    document.getElementById("question").textContent = "No questions in selected categories!";
+    document.getElementById("question").textContent =
+      "No questions in selected categories!";
     return;
   }
 
@@ -228,22 +222,26 @@ function nextQuestion() {
   showQuestion(fullText);
 }
 
+// ✅ FIX 1: Load questions right when page loads
+window.addEventListener("DOMContentLoaded", async () => {
+  await loadQuestions();
+  updateScores();
+});
 
+// ✅ FIX 2: Start button no longer loads questions again
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
   if (!ok) return;
   nextQuestion();
 });
 
-
 document.getElementById("submit").addEventListener("click", submitAnswer);
 document.getElementById("answer").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
-    e.preventDefault(); // prevent default form submission
+    e.preventDefault();
     submitAnswer();
   }
 });
-
 
 // Fix: only buzz with Space if not typing in the answer box
 document.addEventListener("keydown", (e) => {
@@ -255,13 +253,3 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
-
-// Load questions and show categories as soon as the page loads
-window.addEventListener("DOMContentLoaded", async () => {
-  await loadQuestions();
-  updateScores();
-});
-
-
-
-
