@@ -1,9 +1,7 @@
 const QUESTION_URL =
   "https://raw.githubusercontent.com/tornadofury0/National-Science-Bowl-Questions/refs/heads/main/all_questions.json";
 
-let typingJob = null;
 let allQuestions = [];
-let questions = [];
 let currentQuestion = null;
 let typingInterval = null;
 let geminiApiKey = "";
@@ -11,13 +9,11 @@ let timeLeft = 0;
 let timerId = null;
 let buzzed = false;
 let waitingForNext = false;
-
-// Per-category score tracking
 let scores = {};
 
 async function initGemini() {
   const keyInput = document.getElementById("gemini-key");
-  geminiApiKey = keyInput.value.trim();
+  geminiApiKey = keyInput ? keyInput.value.trim() : "";
   if (!geminiApiKey) {
     alert("Please enter your Gemini API key!");
     return false;
@@ -26,18 +22,38 @@ async function initGemini() {
 }
 
 async function loadQuestions() {
-  const res = await fetch(QUESTION_URL);
-  const data = await res.json();
-  allQuestions = data.questions.filter((q) => q.bonus === false);
-  showCategorySelection();
+  try {
+    const res = await fetch(QUESTION_URL);
+    if (!res.ok) throw new Error("Network response was not ok: " + res.status);
+    const data = await res.json();
+    if (!data || !Array.isArray(data.questions)) {
+      throw new Error("Invalid question file format");
+    }
+    allQuestions = data.questions.filter((q) => q.bonus === false);
+    showCategorySelection();
+    console.log("Questions loaded:", allQuestions.length);
+  } catch (err) {
+    console.error("Error loading questions:", err);
+    const container = document.getElementById("category-select");
+    if (container) {
+      container.innerHTML =
+        '<div style="color:darkred">Failed to load categories — check console for details</div>';
+    }
+  }
 }
 
 function showCategorySelection() {
-  const categories = [...new Set(allQuestions.map((q) => q.category))].sort();
   const container = document.getElementById("category-select");
+  if (!container) {
+    console.error('No element with id "category-select" found');
+    return;
+  }
+  const categories = [
+    ...new Set(allQuestions.map((q) => (q.category ? q.category : "Unknown"))),
+  ].sort();
   container.innerHTML = "<h3>Choose categories:</h3>";
   categories.forEach((cat) => {
-    const id = "cat_" + cat.replace(/\s+/g, "_");
+    const id = "cat_" + cat.replace(/\s+/g, "_").replace(/[^\w\-]/g, "");
     container.innerHTML += `
       <label>
         <input type="checkbox" id="${id}" value="${cat}" checked /> ${cat}
@@ -55,6 +71,7 @@ function getSelectedCategories() {
 
 function updateScores() {
   const scoresDiv = document.getElementById("scores");
+  if (!scoresDiv) return;
   let html = "<h3>Scores by Category</h3>";
   for (const [cat, s] of Object.entries(scores)) {
     html += `<div>${cat}: ✅ ${s.correct} | ❌ ${s.wrong}</div>`;
@@ -64,15 +81,17 @@ function updateScores() {
 
 function showQuestion(q) {
   const qDiv = document.getElementById("question");
+  if (!qDiv) return;
   qDiv.textContent = "";
-  const speed = parseInt(document.getElementById("speed").value) || 50;
+  const speed = parseInt(document.getElementById("speed")?.value) || 50;
   let i = 0;
+  if (typingInterval) clearInterval(typingInterval);
   typingInterval = setInterval(() => {
     if (i < q.length) {
-      qDiv.textContent += q[i];
-      i++;
+      qDiv.textContent += q[i++];
     } else {
       clearInterval(typingInterval);
+      typingInterval = null;
       startTimer(5, () => {
         if (!buzzed) {
           document.getElementById("results").textContent =
@@ -87,11 +106,13 @@ function showQuestion(q) {
 function startTimer(seconds, onEnd) {
   timeLeft = seconds;
   updateTimer();
+  if (timerId) clearInterval(timerId);
   timerId = setInterval(() => {
     timeLeft--;
     updateTimer();
     if (timeLeft <= 0) {
       clearInterval(timerId);
+      timerId = null;
       onEnd();
     }
   }, 1000);
@@ -99,7 +120,7 @@ function startTimer(seconds, onEnd) {
 
 function updateTimer() {
   const tDiv = document.getElementById("timer");
-  tDiv.textContent = "⏱ " + timeLeft;
+  if (tDiv) tDiv.textContent = "⏱ " + timeLeft;
 }
 
 function buzz() {
@@ -110,25 +131,21 @@ function buzz() {
   if (buzzed || !currentQuestion) return;
   buzzed = true;
 
-  // Stop typing immediately
   if (typingInterval) {
     clearInterval(typingInterval);
     typingInterval = null;
   }
-
-  // Stop any active answer timer
   if (timerId) {
     clearInterval(timerId);
     timerId = null;
   }
 
-  // Show answer input
   const answerInput = document.getElementById("answer");
   document.getElementById("answer-section").style.display = "block";
-  answerInput.disabled = false;
-  answerInput.focus();
-
-  // Start 8-second timer for typing the answer
+  if (answerInput) {
+    answerInput.disabled = false;
+    answerInput.focus();
+  }
   startTimer(8, submitAnswer);
 }
 
@@ -157,78 +174,81 @@ async function checkWithGemini(userAns, correctAns) {
 }
 
 async function submitAnswer() {
-  clearInterval(timerId);
-  const userAns = document.getElementById("answer").value.trim();
-  const correctAns = currentQuestion.parsed_answer || "";
-  const category = currentQuestion.category || "Unknown";
+  if (timerId) {
+    clearInterval(timerId);
+    timerId = null;
+  }
+  const userAns = document.getElementById("answer")?.value.trim() || "";
+  const correctAns = currentQuestion?.parsed_answer || "";
+  const category = currentQuestion?.category || "Unknown";
   if (!scores[category]) scores[category] = { correct: 0, wrong: 0 };
 
   let isCorrect = false;
-  if (currentQuestion.type.toLowerCase().includes("multiple")) {
-    // Multiple choice: accept letter OR answer text
+  if (currentQuestion?.type?.toLowerCase()?.includes("multiple")) {
     const match = correctAns.match(/^[A-Z]\)/);
     const correctLetter = match ? match[0][0].toUpperCase() : "";
     const correctText = correctAns.replace(/^[A-Z]\)/, "").trim().toUpperCase();
-
     const userUp = userAns.toUpperCase();
     isCorrect = userUp.startsWith(correctLetter) || userUp === correctText;
   } else {
     isCorrect = await checkWithGemini(userAns, correctAns);
   }
 
-  if (isCorrect) {
-    scores[category].correct++;
-  } else {
-    scores[category].wrong++;
-  }
+  if (isCorrect) scores[category].correct++;
+  else scores[category].wrong++;
   updateScores();
 
   document.getElementById("results").textContent = `Q: ${
-    currentQuestion.parsed_question
+    currentQuestion?.parsed_question || ""
   }\nCorrect: ${correctAns}\nYour Answer: ${userAns || "(none)"}\n${
     isCorrect ? "✅ Correct!" : "❌ Wrong!"
   }`;
 
-  document.getElementById("answer").disabled = true;
+  const answerInput = document.getElementById("answer");
+  if (answerInput) answerInput.disabled = true;
   waitingForNext = true;
 }
 
 function nextQuestion() {
-  // Reset UI and state
   document.getElementById("results").textContent = "";
-  document.getElementById("answer").value = "";
-  document.getElementById("answer").disabled = true;
-  document.getElementById("answer-section").style.display = "none";
+  const answerInput = document.getElementById("answer");
+  if (answerInput) {
+    answerInput.value = "";
+    answerInput.disabled = true;
+  }
+  const answerSection = document.getElementById("answer-section");
+  if (answerSection) answerSection.style.display = "none";
   buzzed = false;
   waitingForNext = false;
 
-  // Get selected categories and filter questions
   const selectedCats = getSelectedCategories();
   const pool = allQuestions.filter((q) => selectedCats.includes(q.category));
-  if (pool.length === 0) {
+  if (!pool.length) {
     document.getElementById("question").textContent =
       "No questions in selected categories!";
     return;
   }
-
-  // Pick a random question
   currentQuestion = pool[Math.floor(Math.random() * pool.length)];
-
-  // Prepare full text with type, category, and question
   const questionType = currentQuestion.type || "Unknown";
   const fullText = `TYPE: ${questionType}\nCATEGORY: ${currentQuestion.category}\n\n${currentQuestion.parsed_question}`;
-
-  // Slowly display the question
   showQuestion(fullText);
 }
 
-// ✅ FIX 1: Load questions right when page loads
-window.addEventListener("DOMContentLoaded", async () => {
+// Robust page-init: works whether or not DOMContentLoaded already fired
+async function initPage() {
+  console.log("initPage() called. document.readyState:", document.readyState);
   await loadQuestions();
   updateScores();
-});
+}
 
-// ✅ FIX 2: Start button no longer loads questions again
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", initPage);
+} else {
+  // DOMContentLoaded already fired -> call immediately
+  initPage();
+}
+
+// Start button only checks API key and begins the game
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
   if (!ok) return;
@@ -243,12 +263,9 @@ document.getElementById("answer").addEventListener("keydown", (e) => {
   }
 });
 
-// Fix: only buzz with Space if not typing in the answer box
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
-    if (document.activeElement.id === "answer") {
-      return; // allow spaces in input
-    }
+    if (document.activeElement?.id === "answer") return;
     e.preventDefault();
     buzz();
   }
