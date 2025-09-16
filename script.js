@@ -234,7 +234,7 @@ function nextQuestion() {
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
   if (!ok) return; // stop if no API key
-  await loadQuestions();
+  // await loadQuestions();
   updateScores();
   nextQuestion();
 });
@@ -264,6 +264,7 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
 
 
