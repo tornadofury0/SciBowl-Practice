@@ -215,7 +215,7 @@ function nextQuestion() {
   const selectedCats = getSelectedCategories();
   const pool = allQuestions.filter(q => selectedCats.includes(q.category));
   if (pool.length === 0) {
-    document.getElementById("question").textContent = "No questions in selected categories! Please press the Load Categories button";
+    document.getElementById("question").textContent = "No questions in selected categories!";
     return;
   }
 
@@ -264,9 +264,6 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
-
-
-
 
 
 
