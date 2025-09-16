@@ -34,7 +34,7 @@ async function loadQuestions() {
   showCategorySelection();
 }
 
-await loadQuestions();
+
 
 function showCategorySelection() {
   const categories = [...new Set(allQuestions.map((q) => q.category))].sort();
@@ -234,7 +234,7 @@ function nextQuestion() {
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
   if (!ok) return; // stop if no API key
-  
+  await loadQuestions();
   updateScores();
   nextQuestion();
 });
@@ -264,6 +264,7 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
 
 
