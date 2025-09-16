@@ -238,6 +238,11 @@ document.getElementById("start").addEventListener("click", async () => {
 });
 
 
+document.getElementById("load-categories").addEventListener("click", async () => {
+    // This function already fetches questions and calls showCategorySelection()
+    await loadQuestions();
+});
+
 document.getElementById("submit").addEventListener("click", submitAnswer);
 document.getElementById("answer").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
@@ -257,6 +262,7 @@ document.addEventListener("keydown", (e) => {
     buzz();
   }
 });
+
 
 
 
