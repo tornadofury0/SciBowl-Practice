@@ -13,7 +13,7 @@ let timerId = null;
 let buzzed = false;
 let waitingForNext = false;
 
-// Per-category score tracking
+// track scores for each category
 let scores = {};
 
 async function initGemini() {
@@ -112,25 +112,25 @@ function buzz() {
   if (buzzed || !currentQuestion) return;
   buzzed = true;
 
-  // Stop typing immediately
+  // stop the typing animation
   if (typingInterval) {
     clearInterval(typingInterval);
     typingInterval = null;
   }
 
-  // Stop any active answer timer
+  // clear the reading timer
   if (timerId) {
     clearInterval(timerId);
     timerId = null;
   }
 
-  // Show answer input
+  // bring up answer input
   const answerInput = document.getElementById("answer");
   document.getElementById("answer-section").style.display = "block";
   answerInput.disabled = false;
   answerInput.focus();
 
-  // Start 8-second timer for typing the answer
+  // give 8 seconds to type answer or cooked
   startTimer(8, submitAnswer);
 }
 
@@ -174,7 +174,7 @@ async function submitAnswer() {
 
   let isCorrect = false;
   if (currentQuestion.type.toLowerCase().includes("multiple")) {
-    // Multiple choice: accept letter OR answer text (case-insensitive, ignore leading spaces)
+    // for multiple choice: accept either the letter (A, B, C...) or full answer text
     const match = correctAns.match(/^[A-Z]\)/);
     const correctLetter = match ? match[0][0].toUpperCase() : "";
     const correctText = correctAns.replace(/^[A-Z]\)/, "").trim().toUpperCase();
@@ -203,7 +203,7 @@ async function submitAnswer() {
 }
 
 function nextQuestion() {
-  // Reset UI and state
+  // clear everything for new question
   document.getElementById("results").textContent = "";
   document.getElementById("answer").value = "";
   document.getElementById("answer").disabled = true;
@@ -211,7 +211,7 @@ function nextQuestion() {
   buzzed = false;
   waitingForNext = false;
 
-  // Get selected categories and filter questions
+  // filter by selected categories
   const selectedCats = getSelectedCategories();
   const pool = allQuestions.filter(q => selectedCats.includes(q.category));
   if (pool.length === 0) {
@@ -219,21 +219,21 @@ function nextQuestion() {
     return;
   }
 
-  // Pick a random question
+  // random question from pool
   currentQuestion = pool[Math.floor(Math.random() * pool.length)];
 
-  // Prepare full text with type, category, and question
+  // format the full question text
   const questionType = currentQuestion.type || "Unknown";
   const fullText = `TYPE: ${questionType}\nCATEGORY: ${currentQuestion.category}\n\n${currentQuestion.parsed_question}`;
 
-  // Slowly display the question
+  // start the typing animation
   showQuestion(fullText);
 }
 
 
 document.getElementById("start").addEventListener("click", async () => {
   const ok = await initGemini();
-  if (!ok) return; // stop if no API key
+  if (!ok) return; // bail if no API key
   // await loadQuestions();
   updateScores();
   nextQuestion();
@@ -241,33 +241,26 @@ document.getElementById("start").addEventListener("click", async () => {
 
 
 document.getElementById("load-categories").addEventListener("click", async () => {
-    // This function already fetches questions and calls showCategorySelection()
+    // loads questions and shows category checkboxes
     await loadQuestions();
 });
 
 document.getElementById("submit").addEventListener("click", submitAnswer);
 document.getElementById("answer").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
-    e.preventDefault(); // prevent default form submission
+    e.preventDefault(); // don't submit form
     submitAnswer();
   }
 });
 
 
-// Fix: only buzz with Space if not typing in the answer box
+// spacebar to buzz, but not when typing in answer box
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
     if (document.activeElement.id === "answer") {
-      return; // allow spaces in input
+      return; // let them type spaces normally
     }
     e.preventDefault();
     buzz();
   }
 });
-
-
-
-
-
-
-
