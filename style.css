@@ -1,49 +1,138 @@
+/* General Layout */
 body {
-  background: 
-#1e1e2f;
-  color: white;
-  font-family: Arial, sans-serif;
+  background: #181a1f;
+  color: #f4f4f4;
+  font-family: "Inter", Arial, sans-serif;
   margin: 0;
   padding: 0;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.app-container {
+  max-width: 800px;
+  width: 90%;
+  margin: 40px auto;
   text-align: center;
 }
-#controls, #question, #answer-section, #results {
-  margin: 20px;
+
+/* Titles */
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 25px;
+  color: #61dafb;
+  text-shadow: 0px 0px 12px rgba(97, 218, 251, 0.5);
 }
-#question {
-  font-size: 24px;
+
+h2, h3 {
+  margin-bottom: 15px;
+  color: #f0f0f0;
+}
+
+/* Cards */
+.card {
+  background: #242731;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px 0;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+  text-align: left;
+}
+
+/* Form controls */
+.form-group {
+  margin: 15px 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ddd;
+}
+
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #2e323d;
+  color: #fff;
+}
+
+input:disabled {
+  opacity: 0.6;
+}
+
+/* Buttons */
+.button-group {
+  margin-top: 15px;
+}
+
+.btn {
+  padding: 12px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn.primary {
+  background: #61dafb;
+  color: #1b1b1b;
+  font-weight: bold;
+}
+
+.btn.secondary {
+  background: #444a58;
+  color: #f4f4f4;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Question Display */
+.question-box {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  font-family: "Fira Code", monospace;
   white-space: pre-wrap;
   min-height: 150px;
-  background: 
-#2d2d44;
-  padding: 20px;
-  border-radius: 10px;
 }
+
+/* Timer */
+.timer {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 15px 0;
+  color: #ff6b6b;
+  text-shadow: 0px 0px 10px rgba(255,107,107,0.6);
+}
+
+/* Answer Section */
 #answer {
-  font-size: 22px;
+  font-size: 1.2rem;
   padding: 10px;
-  width: 60%;
+  width: 70%;
+  margin-right: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #2e323d;
+  color: #fff;
   text-align: center;
 }
-#timer {
-  font-size: 36px;
-  margin-top: 10px;
-}
-#scores {
-  margin-top: 20px;
-  font-size: 20px;
-  text-align: left;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  background: 
-#2d2d44;
-  padding: 15px;
-  border-radius: 10px;
-}
-#question {
+
+/* Results & Scores */
+#results, #scores {
+  font-size: 1rem;
+  line-height: 1.5;
   white-space: pre-wrap;
-  font-family: monospace;
-  margin-top: 20px;
-  text-align: left; /* ensures text starts from left */
 }
