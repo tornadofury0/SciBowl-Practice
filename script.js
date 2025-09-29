@@ -35,6 +35,20 @@ async function loadQuestions() {
 }
 
 
+function detectMobile() {
+  const ua = navigator.userAgent.toLowerCase();
+  // Mobile browsers usually have "mobi" in the UA
+  return /mobi|android|iphone|ipad/i.test(ua);
+}
+
+// ad a class to <body>
+if (detectMobile()) {
+  document.body.classList.add("mobile");
+} else {
+  document.body.classList.add("desktop");
+}
+
+
 
 function showCategorySelection() {
   const categories = [...new Set(allQuestions.map((q) => q.category))].sort();
@@ -272,3 +286,4 @@ document.addEventListener("keydown", (e) => {
 document.getElementById("space-btn").addEventListener("click", () => {
   buzz();
 });
+
