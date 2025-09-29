@@ -50,6 +50,8 @@ function showCategorySelection() {
   });
 }
 
+
+
 function getSelectedCategories() {
   const checkboxes = document.querySelectorAll("#category-select input[type=checkbox]");
   return [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
@@ -263,4 +265,10 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     buzz();
   }
+});
+
+
+// space button acts like spacebar
+document.getElementById("space-btn").addEventListener("click", () => {
+  buzz();
 });
