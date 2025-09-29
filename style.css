@@ -71,16 +71,20 @@ input:disabled {
 /* Buttons */
 .button-group {
   margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .btn {
   padding: 12px 20px;
-  margin: 5px;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
   cursor: pointer;
   transition: 0.2s;
+  min-width: 120px;
 }
 
 .btn.primary {
@@ -118,16 +122,21 @@ input:disabled {
 }
 
 /* Answer Section */
+#answer-section {
+  text-align: center;
+}
+
 #answer {
   font-size: 1.2rem;
   padding: 10px;
   width: 70%;
-  margin-right: 10px;
+  margin: 10px 0;
   border-radius: 10px;
   border: none;
   background: #2e323d;
   color: #fff;
   text-align: center;
+  max-width: 500px;
 }
 
 /* Results & Scores */
@@ -135,4 +144,40 @@ input:disabled {
   font-size: 1rem;
   line-height: 1.5;
   white-space: pre-wrap;
+}
+
+/* ✅ Mobile Responsiveness */
+@media (max-width: 600px) {
+  .app-container {
+    margin: 20px auto;
+    width: 95%;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .btn {
+    width: 100%;
+    min-width: unset;
+    font-size: 1rem;
+  }
+
+  #answer {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .timer {
+    font-size: 1.6rem;
+  }
+
+  .question-box {
+    font-size: 1rem;
+    min-height: 120px;
+  }
 }
