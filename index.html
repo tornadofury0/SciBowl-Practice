@@ -2,33 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NSB Practice App</title>
+  <title>Tornadofury0's National Science Bowl Practice App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app-container">
-    <h1>⚡ NSB Practice App</h1>
+    <h1>Tornadofury0's National Science Bowl Practice App</h1>
 
     <!-- Controls Section -->
     <div id="controls" class="card">
       <h2>Settings</h2>
       <div class="form-group">
-        <label for="speed">⌨️ Typing Speed (ms/char):</label>
+        <label for="speed">Typing Speed (ms/char):</label>
         <input type="number" id="speed" value="50" min="10" max="500" />
       </div>
 
       <div class="form-group">
-        <label for="gemini-key">🔑 Gemini API Key</label>
+        <label for="gemini-key">Gemini API Key</label>
         <input 
           type="text" 
           id="gemini-key" 
-          placeholder="Enter your Gemini API key (get one free at Google AI Studio)" 
+          placeholder="Enter your Gemini API key"
         />
+        <p class="small-link">
+          Get one for free at 
+          <a href="https://aistudio.google.com/app/apikey" target="_blank">
+            Google AI Studio
+          </a>.
+        </p>
       </div>
 
       <div class="button-group">
-        <button id="start" class="btn primary">▶ Start</button>
-        <button id="load-categories" class="btn secondary">📂 Load Categories</button>
+        <button id="start" class="btn primary">Start</button>
+        <button id="load-categories" class="btn secondary">Load Categories</button>
       </div>
     </div>
 
@@ -44,7 +50,7 @@
     <!-- Answer section -->
     <div id="answer-section" class="card" style="display:none;">
       <input type="text" id="answer" placeholder="Type your answer..." disabled />
-      <button id="submit" class="btn primary">✅ Submit</button>
+      <button id="submit" class="btn primary">Submit</button>
     </div>
 
     <!-- Results display -->
@@ -52,6 +58,14 @@
 
     <!-- Scores by category -->
     <div id="scores" class="card"></div>
+
+    <!-- Footer -->
+    <footer>
+      <p>
+        Created by <a href="https://github.com/tornadofury0" target="_blank">tornadofury0</a> |
+        Contact: <a href="mailto:area07wave@gmail.com">area07wave@gmail.com</a>
+      </p>
+    </footer>
   </div>
 
   <script src="script.js"></script>
