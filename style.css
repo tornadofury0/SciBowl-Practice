@@ -182,39 +182,37 @@ footer a:hover {
 }
 
 /* ✅ Mobile Responsiveness */
-@media (max-width: 600px) {
-  .app-container {
-    margin: 20px auto;
-    width: 95%;
-  }
+body.mobile .app-container {
+  margin: 20px auto;
+  width: 95%;
+}
 
-  h1 {
-    font-size: 1.6rem;
-  }
+body.mobile h1 {
+  font-size: 1.6rem;
+}
 
-  .card {
-    padding: 15px;
-  }
+body.mobile .card {
+  padding: 15px;
+}
 
-  .btn {
-    width: 100%;
-    min-width: unset;
-    font-size: 1rem;
-  }
+body.mobile .btn {
+  width: 100%;
+  min-width: unset;
+  font-size: 1rem;
+}
 
-  #answer {
-    width: 100%;
-    font-size: 1rem;
-  }
+body.mobile #answer {
+  width: 100%;
+  font-size: 1rem;
+}
 
-  .timer {
-    font-size: 1.6rem;
-  }
+body.mobile .timer {
+  font-size: 1.6rem;
+}
 
-  .question-box {
-    font-size: 1rem;
-    min-height: 120px;
-  }
+body.mobile .question-box {
+  font-size: 1rem;
+  min-height: 120px;
 }
 
 
@@ -237,5 +235,6 @@ footer a:hover {
 .space-btn:hover {
   background: #ffa726;
 }
+
 
 
