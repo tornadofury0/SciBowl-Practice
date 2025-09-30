@@ -1,4 +1,4 @@
-<h1>Usage:</h1>
+<h1>This is an old version with a limited amount of questions. Visit tornadofury0.github.io/scibowl instead</h1>
 
 1. Enter your gemini api key. You can get one for free at https://aistudio.google.com/app/apikey
 2. Press the "Load categories" button to load the questions and categories. You must do this before pressing start or else you will not be able to select your desired categories.
