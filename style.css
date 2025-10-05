@@ -237,4 +237,54 @@ body.mobile .question-box {
 }
 
 
+/* Full-screen overlay */
+#old-version-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 18, 0.95);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  text-align: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+#old-version-overlay .overlay-content {
+  max-width: 700px;
+  margin: 0 1rem;
+  line-height: 1.5;
+}
+
+#old-version-overlay h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+#old-version-overlay p {
+  font-size: 1.05rem;
+}
+
+#old-version-overlay a {
+  color: #ffd966;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+#old-version-overlay .btn {
+  margin-top: 1rem;
+  background: #ffd966;
+  color: #000;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#old-version-overlay .btn:hover {
+  background: #ffe78f;
+}
 
