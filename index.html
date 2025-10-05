@@ -4,8 +4,79 @@
   <meta charset="UTF-8" />
   <title>tornadofury0's National Science Bowl Practice App</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* --- Full-screen overlay styles --- */
+    #old-version-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 12, 18, 0.95);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      text-align: center;
+      padding: 2rem;
+      box-sizing: border-box;
+      font-family: system-ui, sans-serif;
+    }
+
+    #old-version-overlay .overlay-content {
+      max-width: 700px;
+      margin: 0 1rem;
+      line-height: 1.5;
+    }
+
+    #old-version-overlay h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    #old-version-overlay p {
+      font-size: 1.05rem;
+    }
+
+    #old-version-overlay a {
+      color: #ffd966;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    #old-version-overlay .btn {
+      margin-top: 1rem;
+      background: #ffd966;
+      color: #000;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    #old-version-overlay .btn:hover {
+      background: #ffe78f;
+    }
+  </style>
 </head>
+
 <body>
+  <!-- Old-version full-screen overlay -->
+  <div id="old-version-overlay" role="dialog" aria-modal="true" aria-label="Site retired notice">
+    <div class="overlay-content">
+      <h2>This is an old version that is no longer supported</h2>
+      <p>
+        with limited questions — visit
+        <a href="https://tornadofury0.github.io/scibowl" target="_blank" rel="noopener noreferrer">
+          tornadofury0.github.io/scibowl
+        </a>
+        instead.
+      </p>
+      <button id="dismiss-overlay" class="btn">Continue Anyway</button>
+    </div>
+  </div>
+
+  <!-- Main app -->
   <div class="app-container">
     <h1>tornadofury0's National Science Bowl Practice App</h1>
 
@@ -73,8 +144,28 @@
     </footer>
   </div>
 
+  <!-- Scripts -->
   <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const overlay = document.getElementById('old-version-overlay');
+      const dismissBtn = document.getElementById('dismiss-overlay');
+      const app = document.querySelector('.app-container');
+
+      if (overlay && dismissBtn) {
+        // Hide app behind overlay initially
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        if (app) app.setAttribute('aria-hidden', 'true');
+
+        dismissBtn.addEventListener('click', () => {
+          overlay.style.display = 'none';
+          document.documentElement.style.overflow = '';
+          document.body.style.overflow = '';
+          if (app) app.removeAttribute('aria-hidden');
+        });
+      }
+    });
+  </script>
 </body>
 </html>
-
-
