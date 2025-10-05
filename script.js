@@ -48,6 +48,25 @@ if (detectMobile()) {
   document.body.classList.add("desktop");
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('old-version-overlay');
+  const dismissBtn = document.getElementById('dismiss-overlay');
+  const app = document.querySelector('.app-container');
+
+  if (overlay && dismissBtn) {
+    // Disable scrolling and interaction with the app
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    if (app) app.setAttribute('aria-hidden', 'true');
+
+    dismissBtn.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      if (app) app.removeAttribute('aria-hidden');
+    });
+  }
+});
 
 
 function showCategorySelection() {
@@ -286,4 +305,5 @@ document.addEventListener("keydown", (e) => {
 document.getElementById("space-btn").addEventListener("click", () => {
   buzz();
 });
+
 
